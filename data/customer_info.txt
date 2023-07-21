@@ -1,0 +1,72 @@
+{
+    "1": {
+        "name": "John Doe",
+        "business_affiliation": "XYZ Company",
+        "contact_info": {
+            "email": "johndoe@example.com",
+            "phone": "+1 234 567 8901"
+        },
+        "queries": [
+            {
+                "query": "What is the status of my order?",
+                "ai_responses": [
+                    {
+                        "response": "Your order is on the way.",
+                        "date": "2023-07-12 19:15:47.091843",
+                        "tasks": []
+                    }
+                ]
+            },
+            {
+                "query": "When will my order arrive?",
+                "ai_responses": [
+                    {
+                        "response": "Your order will arrive in 2-3 business days.",
+                        "date": "2023-07-12 19:15:47.092844",
+                        "tasks": []
+                    }
+                ]
+            },
+            {
+                "query": " big problem",
+                "ai_responses": [
+                    {
+                        "response": "",
+                        "date": "2023-07-12 23:14:49.916066",
+                        "tasks": []
+                    }
+                ]
+            }
+        ]
+    },
+    "2": {
+        "name": "Jane Smith",
+        "business_affiliation": "ABC Company",
+        "contact_info": {
+            "email": "janesmith@example.com",
+            "phone": "+1 098 765 4321"
+        },
+        "queries": [
+            {
+                "query": "How do I return a product?",
+                "ai_responses": [
+                    {
+                        "response": "You can return a product by following the steps on our Returns page.",
+                        "date": "2023-07-12 19:15:47.093843",
+                        "tasks": []
+                    }
+                ]
+            },
+            {
+                "query": "What is your refund policy?",
+                "ai_responses": [
+                    {
+                        "response": "Our refund policy is available on our Policies page.",
+                        "date": "2023-07-12 19:15:47.094844",
+                        "tasks": []
+                    }
+                ]
+            }
+        ]
+    }
+}

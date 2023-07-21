@@ -1,0 +1,13 @@
+streamlit
+pandas
+opencv-python
+openai
+llama-index
+tiktoken 
+unstructured
+chromadb
+langchain 
+google-search-results
+wikipedia
+pydantic 
+sqlalchemy

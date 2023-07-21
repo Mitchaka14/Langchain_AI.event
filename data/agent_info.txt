@@ -1,0 +1,22 @@
+{
+    "name": "Agent 1",
+    "role": "Customer Service Agent",
+    "voice": "Natural, Friendly",
+    "image_path": "/path/to/image.jpg",
+    "background": "Trained in customer service with a focus on retail.",
+    "behaviour": "Proactive, Empathetic, and Polite",
+    "tasks": {
+        "task1": {
+            "name": "Handle customer query",
+            "description": "Answer the customer's questions and provide appropriate solutions.",
+            "scenario": "Customer asking about a product.",
+            "type": "AI"
+        },
+        "task2": {
+            "name": "Process return",
+            "description": "Handle product return from a customer.",
+            "scenario": "Customer wants to return a product.",
+            "type": "Human"
+        }
+    }
+}
