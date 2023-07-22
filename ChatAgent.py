@@ -2,48 +2,91 @@
 
 import os
 import json
-from langchain import LLMMathChain, SerpAPIWrapper
-from langchain.agents import AgentType, initialize_agent, Tool
+from langchain import LLMMathChain, SerpAPIWrapper, OpenAI, LLMChain
+from langchain.agents import (
+    AgentType,
+    initialize_agent,
+    Tool,
+    ZeroShotAgent,
+    AgentExecutor,
+)
 from langchain.chat_models import ChatOpenAI
-from tools.my_tools import DataTool, SQLAgentTool, InteractiveTool
-
+from tools.my_tools import DataTool, SQLAgentTool, InteractiveTool, FeedbackTool
+from langchain.memory import ConversationBufferMemory, ChatMessageHistory
+from langchain.chains import ConversationChain
 import constants
 
 
-def get_user_input(prompt):
-    return input(prompt)
+def event_handler(event_type, message):
+    if event_type == "input_required":
+        return input(message)
 
 
 os.environ["OPENAI_API_KEY"] = constants.APIKEY
 os.environ["serpapi_api_key"] = constants.SERPAPI_API_KEY
+# _______________________________________________________________________
+
+
 # Initialize the LLM to use for the agent.
-llm = ChatOpenAI(temperature=0.3, model="gpt-3.5-turbo-0613")
+
 search = SerpAPIWrapper()
+
 # Construct the agent.
 tools = [
     DataTool(),
     SQLAgentTool(),
-    InteractiveTool(),
+    InteractiveTool(event_handler=event_handler),
+    FeedbackTool(),
     Tool(
         name="Search",
         func=search.run,
-        description="useful for when you need to ask with search",
+        description="useful for when you need to ask with search......dont end conversation unless, the customer is satisfied",
     ),
 ]
+# ____________________________________________________________________________________________________________________________________________________
 
-agent = initialize_agent(
-    tools=tools,
-    llm=llm,
-    agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
-    verbose=True,
-    get_user_input=get_user_input,  # Pass your function as a callback
-)
-initialPrompt = """
-((prompt)You are customer service agent named jack, you are friendly but firm and doesnt let customers make unnesesarry changes to the database
-if they want to make changes you have to confirm with thier name if its them
-You are interacting with a customer....dont end the conversation till the user is either satisfied or wants to leave(prompt)  )input>>
+prefix = """dont end conversation unless, the customer is satisfied
+You are a customer service agent named Jack. You are friendly but firm and don't let customers make unnecessary changes to the database.
+If they want to make changes, you have to confirm with their name if it's them.
+You don't end the conversation until the user is either satisfied or wants to leave.
+always confirm before ending the conversation, follow proper etiquette
+You have access to the following tools:"""
+suffix = """Begin!   
+
+{chat_history}
+CustomerInput: {input}
+dont end conversation unless, the customer is satisfied"
+{agent_scratchpad}
+dont end conversation unless, the customer is satisfied"
 """
-json_output = agent.run(initialPrompt + "what are my appointments ")
+
+prompt = ZeroShotAgent.create_prompt(
+    tools,
+    prefix=prefix,
+    suffix=suffix,
+    input_variables=["input", "chat_history", "agent_scratchpad"],
+)
+memory = ConversationBufferMemory(memory_key="chat_history")
+# llm = ChatOpenAI(temperature=0, model="gpt-4-0613", prompt=prompt)
+llm_chain = LLMChain(llm=ChatOpenAI(temperature=0, model="gpt-4-0613"), prompt=prompt)
+# ____________________________________________________________________________________________________________________________________________________
+
+
+agent = ZeroShotAgent(
+    llm_chain=llm_chain,
+    tools=tools,
+    verbose=True,
+)
+agent_chain = AgentExecutor.from_agent_and_tools(
+    agent=agent, tools=tools, verbose=True, memory=memory, max_iterations=1000
+)
+
+
+# Start the conversation
+initial_input = "Start conversation with customer, dont end conversation till customer is satisfied "
+full_prompt = initial_input
+
+json_output = agent_chain.run(input=full_prompt)
 
 # Print the JSON output. Depending on the structure of your JSON, you might want to parse it into a Pydantic model, as I showed in the previous examples.
 print(json_output)
