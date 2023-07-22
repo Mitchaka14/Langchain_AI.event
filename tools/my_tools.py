@@ -17,7 +17,7 @@ class DataInput(BaseModel):
 class DataTool(BaseTool):
     name = "custom_dataTool"
     description = """ 
-    This tool provides information on queries about the bussiness. 
+    This tool provides information about the bussiness. 
     it has the bussiness name and other bussiness related stuff,if its not here then its on our website
     """
     # args_schema: Type[BaseModel] = DataInput
@@ -45,11 +45,14 @@ class SQLAgentInput(BaseModel):
 
 
 class SQLAgentTool(BaseTool):
-    name = "Appoinments/scheduler"
+    name = "ClinicDBTool"
     description = """
-    This tool interacts with a SQL database, answering questions about the Appointments, and setting new appoinments.,
-    This tool will create new entries in the database if needed
-    if the input is just a name then retrieve info about the name either 1 of the names or the full name 
+    This tool interacts with a Clinic SQL database, facilitating operations related to patients, appointments, employees, and related medical records,availability.
+    With this tool, you can:
+        - Create, update, and retrieve details about patients, employees, and appointments.
+        - Create and fetch related data such as prescriptions, test results, billing information, complaints, referrals, and interactions.
+    If the input is a patient or employee name, it retrieves all related information. This tool also enables creating new entries in the database when needed, a new or existing patient name is needed .
+    Don't give patients information they shoould and dont need to know
     """
     args_schema: Type[BaseModel] = SQLAgentInput
 

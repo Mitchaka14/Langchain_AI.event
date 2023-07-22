@@ -16,7 +16,7 @@ def sql_agent_function(query: str) -> str:
     """Executes the given query on a SQL database using a SQL agent."""
 
     # Use SQLAlchemy's create_engine to establish a connection to the SQLite database.
-    engine = create_engine("sqlite:///appointments.db")
+    engine = create_engine("sqlite:///ClinicDb.db")
     db = SQLDatabase(engine)
 
     toolkit = SQLDatabaseToolkit(db=db, llm=OpenAI(temperature=0))
