@@ -19,8 +19,8 @@ import os
 
 load_dotenv()  # take environment variables from .env.
 
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-SERPAPI_API_KEY = os.getenv("SERPAPI_API_KEY")
+os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
+os.environ["serpapi_api_key"] = os.getenv("SERPAPI_API_KEY")
 
 search = SerpAPIWrapper()
 

@@ -10,8 +10,6 @@ from langchain.tools import BaseTool
 from langchain.callbacks.manager import CallbackManagerForToolRun
 from dotenv import load_dotenv
 
-load_dotenv()
-
 
 class DataInput(BaseModel):
     question: str

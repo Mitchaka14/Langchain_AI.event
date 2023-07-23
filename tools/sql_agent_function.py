@@ -10,10 +10,12 @@ from sqlalchemy import create_engine
 from dotenv import load_dotenv
 import os
 
+from dotenv import load_dotenv
+
 load_dotenv()  # take environment variables from .env.
 
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-SERPAPI_API_KEY = os.getenv("serpapi_api_key")
+os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
+os.environ["serpapi_api_key"] = os.getenv("SERPAPI_API_KEY")
 
 
 def sql_agent_function(query: str) -> str:
