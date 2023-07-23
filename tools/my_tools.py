@@ -18,7 +18,7 @@ class DataTool(BaseTool):
     name = "custom_dataTool"
     description = """ 
     This tool provides information about the bussiness. 
-    it has the bussiness name and other bussiness related stuff,if its not here then its on our website
+    it has the bussiness name and other bussiness related stuff,if its not here then Search
     """
     # args_schema: Type[BaseModel] = DataInput
 

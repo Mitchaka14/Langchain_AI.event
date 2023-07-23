@@ -1,10 +1,13 @@
 import sqlite3
 from sqlite3 import Error
 from datetime import datetime
+import os
 
 
 def create_connection(db_file):
     conn = None
+    if os.path.exists(db_file):
+        os.remove(db_file)
     try:
         conn = sqlite3.connect(db_file)
         return conn
@@ -91,8 +94,8 @@ def create_employee(conn, employee):
     return cur.lastrowid
 
 
-def create_employee_availability(conn, availability):
-    sql = """ INSERT OR ABORT INTO employee_availability(employee_id, day, start_time, end_time)
+def create_availability(conn, availability):
+    sql = """ INSERT OR ABORT INTO availability(employee_id, day, start_time, end_time)
               VALUES(?,?,?,?) """
     cur = conn.cursor()
     cur.execute(sql, availability)
@@ -126,15 +129,14 @@ def main():
                                          name text NOT NULL
                                      ); """
 
-    sql_create_employee_availability_table = """ CREATE TABLE IF NOT EXISTS employee_availability (
-                                                     id integer PRIMARY KEY,
-                                                     employee_id integer NOT NULL,
-                                                     day text NOT NULL,
-                                                     start_time text NOT NULL,
-                                                     end_time text NOT NULL,
-                                                     FOREIGN KEY (employee_id) REFERENCES employees (id) ON DELETE CASCADE
-                                                 ); """
-
+    sql_create_availability_table = """ CREATE TABLE IF NOT EXISTS availability (
+                                            id integer PRIMARY KEY,
+                                            employee_id integer NOT NULL,
+                                            day text NOT NULL,
+                                            start_time text NOT NULL,
+                                            end_time text NOT NULL,
+                                            FOREIGN KEY (employee_id) REFERENCES employees (id) ON DELETE CASCADE
+                                        ); """
     sql_create_appointments_table = """ CREATE TABLE IF NOT EXISTS appointments (
                                             id integer PRIMARY KEY,
                                             patient_id integer NOT NULL,
@@ -198,7 +200,7 @@ def main():
         create_table(conn, sql_create_patients_table)
         create_table(conn, sql_create_appointment_types_table)
         create_table(conn, sql_create_employees_table)
-        create_table(conn, sql_create_employee_availability_table)
+        create_table(conn, sql_create_availability_table)
         create_table(conn, sql_create_appointments_table)
         create_table(conn, sql_create_billing_table)
         create_table(conn, sql_create_prescriptions_table)
@@ -212,21 +214,46 @@ def main():
     with conn:
         # create employees
         employees = [
-            ("Dr. John Doe",),
-            ("Dr. Jane Doe",),
-            ("Nurse James Smith",),
-            ("Nurse Mary Johnson",),
+            ("Tony Chopper",),
+            ("Lady Tsunade",),
+            ("Orihime Inoue",),
+            ("Recovery Girl",),
+            ("Dende",),
         ]
+
+        employee_availabilities = {
+            "Tony Chopper": {
+                "Monday": ("09:00", "13:00"),
+                "Thursday": ("09:00", "13:00"),
+            },
+            "Lady Tsunade": {
+                "Tuesday": ("13:00", "17:00"),
+                "Friday": ("13:00", "17:00"),
+            },
+            "Orihime Inoue": {
+                "Wednesday": ("10:00", "14:00"),
+                "Saturday": ("10:00", "14:00"),
+            },
+            "Recovery Girl": {
+                "Thursday": ("11:00", "15:00"),
+                "Sunday": ("11:00", "15:00"),
+            },
+            "Dende": {
+                "Monday": ("12:00", "16:00"),
+                "Friday": ("12:00", "16:00"),
+            },
+        }
 
         for employee in employees:
             employee_id = create_employee(conn, employee)
+            employee_name = employee[0]
 
             # create related data for each employee
-            # 10am to 5pm from Monday to Friday
-            for day in ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]:
-                create_employee_availability(conn, (employee_id, day, "10:00", "17:00"))
-
-        # create patients
+            # Specific times are set based on employee name
+            for day, time_range in employee_availabilities[employee_name].items():
+                create_availability(
+                    conn, (employee_id, day, *time_range)
+                )  # create patients
         patients = [
             (1, "Naruto Uzumaki", "10-10-1980", "Konoha", "Insurance1"),
             (2, "Sasuke Uchiha", "07-23-1981", "Konoha", "Insurance2"),
