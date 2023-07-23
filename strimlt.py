@@ -13,6 +13,8 @@ from langchain.chat_models import ChatOpenAI
 from tools.my_tools import DataTool, SQLAgentTool, EmailTool
 import subprocess
 import os
+from PIL import Image
+
 from dotenv import load_dotenv
 
 try:
@@ -167,6 +169,50 @@ def handle_chat(user_input, system_message):
     st.session_state["chat_history"].append(("assistant", agent_response))
 
 
+def presentation():
+    # Import required libraries
+    from PIL import Image
+    import os
+
+    # Define the path where your images are stored
+    images_folder = "./VoiceVerse AgentAI"  # Corrected path
+
+    # Ensure the images are sorted by their names (1.jpg, 2.jpg, ..., 11.jpg)
+    images = sorted(
+        [
+            os.path.join(images_folder, img)
+            for img in os.listdir(images_folder)
+            if img.endswith((".png", ".jpg", ".jpeg"))
+        ],
+        key=lambda x: int(
+            os.path.splitext(os.path.basename(x))[0]
+        ),  # Sort the images by their names (1, 2, ..., 11)
+    )
+
+    # Initialize image index in Session State
+    if "img_idx" not in st.session_state:
+        st.session_state["img_idx"] = 0
+
+    # Open and display the image:
+    image = Image.open(images[st.session_state["img_idx"]])
+    st.image(image, use_column_width=True)
+
+    # Create two columns for buttons
+    col1, col2 = st.columns(2)
+
+    # Add a button to column 1
+    if col1.button("Previous Image"):
+        # Decrement image index, ensuring it doesn't go below 0
+        st.session_state["img_idx"] = max(0, st.session_state["img_idx"] - 1)
+
+    # Add a button to column 2
+    if col2.button("Next Image"):
+        # Increment image index, ensuring it doesn't go beyond the number of available images
+        st.session_state["img_idx"] = min(
+            len(images) - 1, st.session_state["img_idx"] + 1
+        )
+
+
 def main():
     st.title("Customer Service App")
     agent_type = st.sidebar.selectbox(
@@ -182,6 +228,7 @@ def main():
         "Chat": st.empty,
         "Business Info": business_info,
         "Database Info": database_info,
+        "Presentation": presentation,
     }
     page = st.sidebar.radio("Navigation", tuple(pages.keys()))
 
