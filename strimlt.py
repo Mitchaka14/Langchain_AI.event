@@ -169,7 +169,14 @@ def handle_chat(user_input, system_message):
 
 def main():
     st.title("Customer Service App")
-
+    agent_type = st.sidebar.selectbox(
+        "Select Agent Type",
+        options=[AgentType.OPENAI_FUNCTIONS, AgentType.ZERO_SHOT_REACT_DESCRIPTION],
+        format_func=lambda x: x.name,  # Display enum name
+    )
+    agent = initialize_agent(
+        tools, llm, agent=agent_type, verbose=True
+    )  # Update agent with selected AgentType
     # Adding navigation
     pages = {
         "Chat": st.empty,
