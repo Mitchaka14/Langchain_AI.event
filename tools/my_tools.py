@@ -14,13 +14,13 @@ from dotenv import load_dotenv
 from langchain.llms import OpenAI
 import streamlit as st
 from dotenv import load_dotenv
-from langchain.chains import LLMChain
+import openai
 
 try:
-    os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
+    openai.api_key = st.secrets["OPENAI_API_KEY"]
 except Exception:
     load_dotenv()
-    os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
+    openai.api_key = os.getenv("OPENAI_API_KEY")
 
 try:
     os.environ["serpapi_api_key"] = st.secrets["SERPAPI_API_KEY"]
@@ -143,19 +143,25 @@ class EmailTool(BaseTool):
             user_email, ""
         )  # Remove email from the raw message
 
-        # Define a chain to process the raw message
-        chain = LLMChain(llm=self.llm, prompt=raw_message)
-
-        # Pass the raw message through the LLMChain
-        formatted_query = chain.run(
-            f"Resend this message but with >subject: {raw_message}< to identify the subject and >content: {raw_message}< to identify the content"
+        # Use GPT-3.5 Turbo to process the raw message
+        completion = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {
+                    "role": "system",
+                    "content": "Extract/add/make subject and content from the following message,return it in this formart..>subject: (.*?)<  >content: (.*?)<.",
+                },
+                {"role": "user", "content": raw_message},
+            ],
         )
+
+        formatted_query = completion.choices[0].message
 
         # default values
         subject = "email from voiceverse agent"
         message = raw_message
 
-        # Check if LLM formatted it correctly, otherwise, fallback to the original method
+        # Check if GPT-3.5 Turbo formatted it correctly, otherwise, fallback to the original method
         if ">subject:" in formatted_query and ">content:" in formatted_query:
             subject = re.search(r">subject: (.*?)<", formatted_query).group(1).strip()
             message = re.search(r">content: (.*?)<", formatted_query).group(1).strip()
