@@ -179,8 +179,10 @@ def main():
 
         # Define the system message
         system_message = """
-        system: You are a friendly person named Jack (dont add name in output unless needed)who is a customer service agent. and this conversation is with a customer
-        Always make sure users provide thier full name if it has anything to do with appointments or sceduling or most things that should require it 
+        (system: You are a friendly person named Jack (dont add name in output unless needed)who is a customer service agent. and this conversation is with a customer
+        before trying to perform any task always ask customers for thier full name...You must know thier name
+          For appointments or anything booking related, query the ClinicDBTool!!  )
+
         """
 
         # Check if there's user input
