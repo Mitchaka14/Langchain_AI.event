@@ -9,10 +9,10 @@ from langchain.embeddings import OpenAIEmbeddings
 from langchain.indexes import VectorstoreIndexCreator
 from langchain.indexes.vectorstore import VectorStoreIndexWrapper
 from langchain.vectorstores import Chroma
+from dotenv import load_dotenv
 
-import constants
-
-os.environ["OPENAI_API_KEY"] = constants.APIKEY
+load_dotenv()
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 
 def data_function(question: str) -> str:

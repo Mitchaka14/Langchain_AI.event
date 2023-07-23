@@ -11,12 +11,16 @@ from langchain.agents import (
 )
 from langchain.chat_models import ChatOpenAI
 from tools.my_tools import DataTool, SQLAgentTool
-import constants
+
 import subprocess
 
-# Setting up environment variables
-os.environ["OPENAI_API_KEY"] = constants.APIKEY
-os.environ["serpapi_api_key"] = constants.SERPAPI_API_KEY
+from dotenv import load_dotenv
+import os
+
+load_dotenv()  # take environment variables from .env.
+
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+SERPAPI_API_KEY = os.getenv("SERPAPI_API_KEY")
 
 search = SerpAPIWrapper()
 

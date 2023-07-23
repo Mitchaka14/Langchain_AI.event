@@ -14,7 +14,6 @@ from langchain.chat_models import ChatOpenAI
 from tools.my_tools import DataTool, SQLAgentTool
 from langchain.memory import ConversationBufferMemory, ChatMessageHistory
 from langchain.chains import ConversationChain
-import constants
 
 
 def event_handler(event_type, message):
@@ -22,8 +21,13 @@ def event_handler(event_type, message):
         return input(message)
 
 
-os.environ["OPENAI_API_KEY"] = constants.APIKEY
-os.environ["serpapi_api_key"] = constants.SERPAPI_API_KEY
+from dotenv import load_dotenv
+import os
+
+load_dotenv()  # take environment variables from .env.
+
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+SERPAPI_API_KEY = os.getenv("SERPAPI_API_KEY")
 # _______________________________________________________________________
 
 
