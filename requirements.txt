@@ -11,4 +11,3 @@ google-search-results
 wikipedia
 pydantic 
 sqlalchemy
-python-dotenv

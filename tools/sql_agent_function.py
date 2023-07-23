@@ -8,8 +8,10 @@ from langchain.agents import AgentExecutor
 from langchain.agents.agent_types import AgentType
 from sqlalchemy import create_engine
 
-os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
-os.environ["serpapi_api_key"] = os.getenv("SERPAPI_API_KEY")
+api_key = os.getenv("OPENAI_API_KEY")
+serpapi_key = os.getenv("SERPAPI_API_KEY")
+os.environ["OPENAI_API_KEY"] = api_key
+os.environ["serpapi_api_key"] = serpapi_key
 
 
 def sql_agent_function(query: str) -> str:

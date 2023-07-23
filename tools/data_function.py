@@ -10,9 +10,10 @@ from langchain.indexes import VectorstoreIndexCreator
 from langchain.indexes.vectorstore import VectorStoreIndexWrapper
 from langchain.vectorstores import Chroma
 
-# take environment variables from .env.
-os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
-os.environ["serpapi_api_key"] = os.getenv("SERPAPI_API_KEY")
+api_key = os.getenv("OPENAI_API_KEY")
+serpapi_key = os.getenv("SERPAPI_API_KEY")
+os.environ["OPENAI_API_KEY"] = api_key
+os.environ["serpapi_api_key"] = serpapi_key
 
 
 def data_function(question: str) -> str:
