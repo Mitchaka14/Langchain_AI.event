@@ -7,12 +7,6 @@ from langchain.llms.openai import OpenAI
 from langchain.agents import AgentExecutor
 from langchain.agents.agent_types import AgentType
 from sqlalchemy import create_engine
-from dotenv import load_dotenv
-import os
-
-from dotenv import load_dotenv
-
-load_dotenv()  # take environment variables from .env.
 
 os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
 os.environ["serpapi_api_key"] = os.getenv("SERPAPI_API_KEY")

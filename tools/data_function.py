@@ -9,9 +9,8 @@ from langchain.embeddings import OpenAIEmbeddings
 from langchain.indexes import VectorstoreIndexCreator
 from langchain.indexes.vectorstore import VectorStoreIndexWrapper
 from langchain.vectorstores import Chroma
-from dotenv import load_dotenv
 
-load_dotenv()  # take environment variables from .env.
+# take environment variables from .env.
 os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
 os.environ["serpapi_api_key"] = os.getenv("SERPAPI_API_KEY")
 

@@ -8,7 +8,6 @@ from typing import Optional, Type
 from pydantic import BaseModel, Extra
 from langchain.tools import BaseTool
 from langchain.callbacks.manager import CallbackManagerForToolRun
-from dotenv import load_dotenv
 
 
 class DataInput(BaseModel):
