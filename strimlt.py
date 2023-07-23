@@ -10,22 +10,33 @@ from langchain.agents import (
     Tool,
 )
 from langchain.chat_models import ChatOpenAI
-from tools.my_tools import DataTool, SQLAgentTool
+from tools.my_tools import DataTool, SQLAgentTool, EmailTool
 import subprocess
 import os
+from dotenv import load_dotenv
 
-os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
-os.environ["serpapi_api_key"] = st.secrets["SERPAPI_API_KEY"]
+try:
+    os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
+except Exception:
+    load_dotenv()
+    os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
 
+try:
+    os.environ["serpapi_api_key"] = st.secrets["SERPAPI_API_KEY"]
+except Exception:
+    load_dotenv()
+    os.environ["serpapi_api_key"] = os.getenv("SERPAPI_API_KEY")
 search = SerpAPIWrapper()
 
 data_tool = DataTool()
 sql_agent_tool = SQLAgentTool()
+email_sender_tool = EmailTool()
 sql_agent_tool.description = ""
 
 tools = [
     data_tool,
     sql_agent_tool,
+    email_sender_tool,
     Tool(
         name="Search",
         func=search.run,
@@ -36,7 +47,7 @@ tools = [
 llm = ChatOpenAI(temperature=0, model="gpt-3.5-turbo-0613")
 
 agent = initialize_agent(tools, llm, agent=AgentType.OPENAI_FUNCTIONS, verbose=True)
-
+# _________________________________________________________________________________________
 db_path = os.path.join(os.getcwd(), "ClinicDb.db")  # The full path of the database file
 recovery_db_path = os.path.join(os.getcwd(), "ClinicDbRecovery.db")
 
@@ -156,9 +167,9 @@ def handle_chat(user_input, system_message):
     st.session_state["chat_history"].append(("assistant", agent_response))
 
 
-# Streamlit App Starts Here
 def main():
     st.title("Customer Service App")
+
     # Adding navigation
     pages = {
         "Chat": st.empty,
@@ -166,6 +177,7 @@ def main():
         "Database Info": database_info,
     }
     page = st.sidebar.radio("Navigation", tuple(pages.keys()))
+
     # Call the function of the selected page
     pages[page]()
 
@@ -174,15 +186,36 @@ def main():
         if "chat_history" not in st.session_state:
             st.session_state["chat_history"] = []
 
+        # Initialize user details in Session State
+        if "user_details" not in st.session_state:
+            st.session_state["user_details"] = {"full_name": "", "email": ""}
+
+        # Add input fields for full name and email address
+        if not st.session_state["user_details"]["full_name"]:
+            st.session_state["user_details"]["full_name"] = st.text_input(
+                "Enter your full name:"
+            )
+        if not st.session_state["user_details"]["email"]:
+            st.session_state["user_details"]["email"] = st.text_input(
+                "Enter your email address:"
+            )
+
+        full_name = st.session_state["user_details"]["full_name"]
+        email = st.session_state["user_details"]["email"]
+
         # Use a chat input for user input
         user_input = st.chat_input("Enter your message here:")
 
         # Define the system message
-        system_message = """
-        (system: You are a friendly person named Jack (dont add name in output unless needed)who is a customer service agent. and this conversation is with a customer
-        before trying to perform any task always ask customers for thier full name...You must know thier name
+        system_message = f"""
+        (system: You are a friendly Human named Jack (dont Jack: )who is a customer service agent. and this conversation is with a customer
+        before trying to perform any task always ask customers for their full name...You must know their name
           For appointments or anything booking related, query the ClinicDBTool!!  )
 
+        User Full Name: {full_name}
+        User Email: {email}
+        send Email for reminders and other important things
+        ask customer if they want to be sent certain things depending on its nature
         """
 
         # Check if there's user input
@@ -197,6 +230,7 @@ def main():
         # Button to reset conversation
         if st.button("Reset Conversation"):
             st.session_state["chat_history"] = []
+            st.session_state["user_details"] = {"full_name": "", "email": ""}
 
 
 if __name__ == "__main__":

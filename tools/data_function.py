@@ -11,9 +11,19 @@ from langchain.indexes.vectorstore import VectorStoreIndexWrapper
 from langchain.vectorstores import Chroma
 
 import streamlit as st
+from dotenv import load_dotenv
 
-os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
-os.environ["serpapi_api_key"] = st.secrets["SERPAPI_API_KEY"]
+try:
+    os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
+except Exception:
+    load_dotenv()
+    os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
+
+try:
+    os.environ["serpapi_api_key"] = st.secrets["SERPAPI_API_KEY"]
+except Exception:
+    load_dotenv()
+    os.environ["serpapi_api_key"] = os.getenv("SERPAPI_API_KEY")
 
 
 def data_function(question: str) -> str:

@@ -9,9 +9,19 @@ from langchain.agents.agent_types import AgentType
 from sqlalchemy import create_engine
 
 import streamlit as st
+from dotenv import load_dotenv
 
-os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
-os.environ["serpapi_api_key"] = st.secrets["SERPAPI_API_KEY"]
+try:
+    os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
+except Exception:
+    load_dotenv()
+    os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
+
+try:
+    os.environ["serpapi_api_key"] = st.secrets["SERPAPI_API_KEY"]
+except Exception:
+    load_dotenv()
+    os.environ["serpapi_api_key"] = os.getenv("SERPAPI_API_KEY")
 
 
 def sql_agent_function(query: str) -> str:

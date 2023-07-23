@@ -22,9 +22,19 @@ def event_handler(event_type, message):
 
 
 import streamlit as st
+from dotenv import load_dotenv
 
-os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
-os.environ["serpapi_api_key"] = st.secrets["SERPAPI_API_KEY"]
+try:
+    os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
+except KeyError:
+    load_dotenv()
+    os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
+
+try:
+    os.environ["serpapi_api_key"] = st.secrets["SERPAPI_API_KEY"]
+except KeyError:
+    load_dotenv()
+    os.environ["serpapi_api_key"] = os.getenv("SERPAPI_API_KEY")
 # _______________________________________________________________________
 
 

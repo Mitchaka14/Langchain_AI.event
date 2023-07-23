@@ -11,3 +11,7 @@ google-search-results
 wikipedia
 pydantic 
 sqlalchemy
+ google-auth 
+ google-auth-httplib2 
+ google-auth-oauthlib 
+ google-api-python-client

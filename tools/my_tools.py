@@ -1,13 +1,32 @@
 # my_tools.py
 
 from typing import Optional, Type
-from pydantic import BaseModel
 from langchain.tools import BaseTool
 from langchain.callbacks.manager import CallbackManagerForToolRun
-from typing import Optional, Type
 from pydantic import BaseModel, Extra
-from langchain.tools import BaseTool
-from langchain.callbacks.manager import CallbackManagerForToolRun
+import os
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+import re
+import streamlit as st
+from dotenv import load_dotenv
+from langchain.llms import OpenAI
+import streamlit as st
+from dotenv import load_dotenv
+from langchain.chains import LLMChain
+
+try:
+    os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
+except Exception:
+    load_dotenv()
+    os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
+
+try:
+    os.environ["serpapi_api_key"] = st.secrets["SERPAPI_API_KEY"]
+except Exception:
+    load_dotenv()
+    os.environ["serpapi_api_key"] = os.getenv("SERPAPI_API_KEY")
 
 
 class DataInput(BaseModel):
@@ -60,9 +79,11 @@ class SQLAgentTool(BaseTool):
         self, query: str, run_manager: Optional[CallbackManagerForToolRun] = None
     ) -> str:
         """Use the tool."""
-        from .sql_agent_function import (
-            sql_agent_function,
-        )  # Import the function here to avoid circular imports
+        try:
+            from sql_agent_function import sql_agent_function
+        except ImportError:
+            from .sql_agent_function import sql_agent_function
+        # Import the function here to avoid circular imports
 
         output = sql_agent_function(query)
         return output
@@ -72,6 +93,107 @@ class SQLAgentTool(BaseTool):
     ) -> str:
         """Use the tool asynchronously."""
         raise NotImplementedError("/SQLAgentTool does not support async")
+
+
+class EmailToolInput(BaseModel):
+    query: str
+
+
+class EmailTool(BaseTool):
+    name = "EmailTool"
+    description = """
+    This tool sends an email message extracted from the provided content string to the detected email address.
+    The content string should contain an email address and the message body.
+    """
+    args_schema: Type[BaseModel] = EmailToolInput
+    llm = OpenAI(temperature=0.9)
+
+    def _run(
+        self,
+        query: EmailToolInput,
+        run_manager: Optional[CallbackManagerForToolRun] = None,
+    ) -> str:
+        """Use the tool."""
+        try:
+            password = st.secrets["CodedP"]
+        except Exception:
+            load_dotenv()
+            password = os.getenv("CodedP")
+
+        return self.send_email(query, password)
+
+    async def _arun(
+        self,
+        query: EmailToolInput,
+        run_manager: Optional[CallbackManagerForToolRun] = None,
+    ) -> str:
+        """Use the tool asynchronously."""
+        return self._run(query, run_manager)
+
+    def send_email(self, content: str, password: str) -> str:
+        # Extract email address from the content string
+        email_pattern = r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b"
+        match = re.search(email_pattern, content)
+
+        if not match:
+            return "No email address detected in the content"
+
+        user_email = match.group()
+        raw_message = content.replace(
+            user_email, ""
+        )  # Remove email from the raw message
+
+        # Define a chain to process the raw message
+        chain = LLMChain(llm=self.llm, prompt=raw_message)
+
+        # Pass the raw message through the LLMChain
+        formatted_query = chain.run(
+            f"Resend this message but with >subject: {raw_message}< to identify the subject and >content: {raw_message}< to identify the content"
+        )
+
+        # default values
+        subject = "email from voiceverse agent"
+        message = raw_message
+
+        # Check if LLM formatted it correctly, otherwise, fallback to the original method
+        if ">subject:" in formatted_query and ">content:" in formatted_query:
+            subject = re.search(r">subject: (.*?)<", formatted_query).group(1).strip()
+            message = re.search(r">content: (.*?)<", formatted_query).group(1).strip()
+        else:
+            # Extract subject and content if exists in raw_message
+            raw_message_lines = raw_message.split(",")
+            for line in raw_message_lines:
+                line = line.strip()
+                if line.lower().startswith("subject:"):
+                    subject = line[8:].strip()  # skip "subject:" part
+                elif line.lower().startswith("content:"):
+                    message = line[8:].strip()  # skip "content:" part
+
+        # create message object instance
+        msg = MIMEMultipart()
+
+        # setup the parameters of the message
+        msg["From"] = "voiceverseverse@gmail.com"
+        msg["To"] = user_email
+        msg["Subject"] = subject
+
+        # add in the message body
+        msg.attach(MIMEText(message, "plain"))
+
+        # create server
+        server = smtplib.SMTP("smtp.gmail.com", 587)
+
+        # starting the server instance
+        server.starttls()
+
+        # Login Credentials for sending the mail
+        server.login(msg["From"], password)
+
+        # send the message via the server
+        server.sendmail(msg["From"], msg["To"], msg.as_string())
+        server.quit()
+
+        return f"Email successfully sent to {user_email}"
 
 
 # class InteractiveTool(BaseTool):
