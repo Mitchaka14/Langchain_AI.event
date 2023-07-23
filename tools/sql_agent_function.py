@@ -13,7 +13,7 @@ import os
 load_dotenv()  # take environment variables from .env.
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-SERPAPI_API_KEY = os.getenv("SERPAPI_API_KEY")
+SERPAPI_API_KEY = os.getenv("serpapi_api_key")
 
 
 def sql_agent_function(query: str) -> str:
