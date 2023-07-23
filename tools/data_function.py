@@ -10,10 +10,10 @@ from langchain.indexes import VectorstoreIndexCreator
 from langchain.indexes.vectorstore import VectorStoreIndexWrapper
 from langchain.vectorstores import Chroma
 
-api_key = os.getenv("OPENAI_API_KEY")
-serpapi_key = os.getenv("SERPAPI_API_KEY")
-os.environ["OPENAI_API_KEY"] = api_key
-os.environ["serpapi_api_key"] = serpapi_key
+import streamlit as st
+
+os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
+os.environ["serpapi_api_key"] = st.secrets["SERPAPI_API_KEY"]
 
 
 def data_function(question: str) -> str:
