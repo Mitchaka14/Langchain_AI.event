@@ -14,5 +14,5 @@ sqlalchemy
  google-auth 
  google-auth-httplib2 
  google-auth-oauthlib 
- sqlite3 >= 3.35.0.
+ sqlite3 
  google-api-python-client
